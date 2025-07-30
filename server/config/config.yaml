@@ -1,0 +1,3 @@
+client_polling_interval_seconds: 15
+clients:
+  - http://localhost:8080
