@@ -2,12 +2,20 @@ import socket
 import threading
 import time
 import struct
+from config.load_config import return_yaml
 
-# Конфигурация
-SERVER_IP = "0.0.0.0"  # Слушать все интерфейсы
-SERVER_PORT = 5006
-AGENT_ADDRESSES = [("127.0.0.1", 5005)]  # Список агентов (IP, PORT)
-POLL_INTERVAL = 10  # Интервал опроса агентов (сек)
+
+try:
+    yaml_data = return_yaml()
+except Exception as e:
+    print(f"Ошибка при импорте конфигурации: {e}")
+    raise
+
+
+SERVER_IP = yaml_data['SERVER_IP']  # Слушать все интерфейсы
+SERVER_PORT = yaml_data['SERVER_PORT']
+AGENT_ADDRESSES = [(yaml_data['AGENT_IP'], yaml_data['AGENT_PORT'])]  # Список агентов (IP, PORT)
+POLL_INTERVAL = yaml_data['POLL_INTERVAL']  # Интервал опроса агентов (сек)
 
 def start_polling():
     """Поток опроса агентов"""

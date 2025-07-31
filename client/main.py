@@ -3,13 +3,20 @@ import threading
 import time
 import struct
 from collector import *
+from config.load_config import return_yaml
 
-# Конфигурация
-AGENT_IP = "0.0.0.0"
-AGENT_PORT = 5005
-SERVER_IP = "127.0.0.1"
-SERVER_PORT = 5006
-MEMORY_CLEAR_TIMEOUT = 60  # Таймаут очистки памяти (сек)
+
+try:
+    yaml_data = return_yaml()
+except Exception as e:
+    print(f"Ошибка при импорте конфигурации: {e}")
+    raise
+
+AGENT_IP = yaml_data['AGENT_IP']
+AGENT_PORT = yaml_data['AGENT_PORT']
+SERVER_IP = yaml_data['SERVER_IP']
+SERVER_PORT = yaml_data['SERVER_PORT']
+MEMORY_CLEAR_TIMEOUT = yaml_data['MEMORY_CLEAR_TIMEOUT']
 
 data_lock = threading.Lock()
 
@@ -23,7 +30,6 @@ def handle_server_requests():
     while True:
         try:
             data, addr = sock.recvfrom(1)
-            # Проверяем: запрос от сервера + корректная команда
             if addr[0] == SERVER_IP and data == b"\x01":
                 with data_lock:
                     # Формируем пакет только если есть данные
