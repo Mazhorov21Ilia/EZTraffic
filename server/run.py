@@ -2,20 +2,13 @@ import socket
 import threading
 import time
 import struct
-from config.load_config import return_yaml
+from config.load_config import yaml_data
 
 
-try:
-    yaml_data = return_yaml()
-except Exception as e:
-    print(f"Ошибка при импорте конфигурации: {e}")
-    raise
-
-
-SERVER_IP = yaml_data['SERVER_IP']  # Слушать все интерфейсы
+SERVER_IP = yaml_data['SERVER_IP']
 SERVER_PORT = yaml_data['SERVER_PORT']
-AGENT_ADDRESSES = [(yaml_data['AGENT_IP'], yaml_data['AGENT_PORT'])]  # Список агентов (IP, PORT)
-POLL_INTERVAL = yaml_data['POLL_INTERVAL']  # Интервал опроса агентов (сек)
+AGENT_ADDRESSES = [(yaml_data['AGENT_IP'], yaml_data['AGENT_PORT'])]
+POLL_INTERVAL = yaml_data['POLL_INTERVAL']
 
 def start_polling():
     """Поток опроса агентов"""
@@ -24,7 +17,7 @@ def start_polling():
     
     while True:
         for agent_addr in AGENT_ADDRESSES:
-            sock.sendto(b"\x01", agent_addr)  # 1 байт вместо строки
+            sock.sendto(b"\x01", agent_addr)
         time.sleep(POLL_INTERVAL)
 
 def handle_incoming_data():
@@ -36,11 +29,10 @@ def handle_incoming_data():
     
     while True:
         try:
-            data, addr = sock.recvfrom(16)  # 16 байт = 2x uint64
+            data, addr = sock.recvfrom(16)
             if len(data) == 16:
                 in_bytes, out_bytes = struct.unpack("!QQ", data)
                 print(f"Получено от {addr[0]}: вход={in_bytes} байт, выход={out_bytes} байт")
-                # Здесь можно сохранять данные в БД или файл
             else:
                 print(f"[WARN] Некорректные данные от {addr}")
         except Exception as e:

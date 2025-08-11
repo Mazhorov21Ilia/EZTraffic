@@ -12,3 +12,5 @@ def return_yaml():
     except yaml.YAMLError as e:
         print(f"Ошибка парсинга YAML файла: {e}")
         raise
+
+yaml_data = return_yaml()
